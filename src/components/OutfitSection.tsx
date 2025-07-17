@@ -3,9 +3,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import outfitIndian1 from '@/assets/outfit-indian-1.jpg';
+import outfitIndian2 from '@/assets/outfit-indian-2.jpg';
+import outfitIndian3 from '@/assets/outfit-indian-3.jpg';
 import outfitWestern1 from '@/assets/outfit-western-1.jpg';
+import outfitWestern2 from '@/assets/outfit-western-2.jpg';
+import outfitWestern3 from '@/assets/outfit-western-3.jpg';
 import outfitComfort1 from '@/assets/outfit-comfort-1.jpg';
+import outfitComfort2 from '@/assets/outfit-comfort-2.jpg';
+import outfitComfort3 from '@/assets/outfit-comfort-3.jpg';
 import outfitFusion1 from '@/assets/outfit-fusion-1.jpg';
+import outfitFusion2 from '@/assets/outfit-fusion-2.jpg';
+import outfitFusion3 from '@/assets/outfit-fusion-3.jpg';
 
 interface StyleData {
   bodyShape: string;
@@ -25,50 +33,50 @@ const OutfitSection = ({ styleData }: OutfitProps) => {
     const outfits = {
       Indian: [
         { image: outfitIndian1, description: 'Elegant lehenga with fitted choli for hourglass shape' },
-        { image: outfitIndian1, description: 'Anarkali suit with empire waist for apple body type' },
-        { image: outfitIndian1, description: 'Saree with peplum blouse for rectangle figure' },
+        { image: outfitIndian2, description: 'Anarkali suit with empire waist for apple body type' },
+        { image: outfitIndian3, description: 'Saree with peplum blouse for rectangle figure' },
         { image: outfitIndian1, description: 'Straight kurta with palazzo for pear shape' },
-        { image: outfitIndian1, description: 'Indo-western crop top with sharara' },
-        { image: outfitIndian1, description: 'Traditional silk saree with fitted blouse' },
+        { image: outfitIndian2, description: 'Indo-western crop top with sharara' },
+        { image: outfitIndian3, description: 'Traditional silk saree with fitted blouse' },
         { image: outfitIndian1, description: 'Modern churidar with long dupatta' },
-        { image: outfitIndian1, description: 'Festive ghagra with mirror work' },
-        { image: outfitIndian1, description: 'Contemporary kurti with printed pants' },
+        { image: outfitIndian2, description: 'Festive ghagra with mirror work' },
+        { image: outfitIndian3, description: 'Contemporary kurti with printed pants' },
         { image: outfitIndian1, description: 'Classic bandhgala jacket with leggings' }
       ],
       Western: [
         { image: outfitWestern1, description: 'A-line dress perfect for pear body shape' },
-        { image: outfitWestern1, description: 'High-waisted jeans with fitted blazer' },
-        { image: outfitWestern1, description: 'Wrap dress highlighting hourglass figure' },
+        { image: outfitWestern2, description: 'High-waisted jeans with fitted blazer' },
+        { image: outfitWestern3, description: 'Wrap dress highlighting hourglass figure' },
         { image: outfitWestern1, description: 'Empire waist dress for apple shape' },
-        { image: outfitWestern1, description: 'Straight-leg trousers with statement top' },
-        { image: outfitWestern1, description: 'Midi skirt with tucked-in blouse' },
+        { image: outfitWestern2, description: 'Straight-leg trousers with statement top' },
+        { image: outfitWestern3, description: 'Midi skirt with tucked-in blouse' },
         { image: outfitWestern1, description: 'Wide-leg pants with fitted camisole' },
-        { image: outfitWestern1, description: 'Bodycon dress with cardigan layer' },
-        { image: outfitWestern1, description: 'Pencil skirt with V-neck sweater' },
+        { image: outfitWestern2, description: 'Bodycon dress with cardigan layer' },
+        { image: outfitWestern3, description: 'Pencil skirt with V-neck sweater' },
         { image: outfitWestern1, description: 'Maxi dress with defined waistline' }
       ],
       Comfort: [
         { image: outfitComfort1, description: 'Cozy oversized sweater with leggings' },
-        { image: outfitComfort1, description: 'Athleisure set with high-waisted design' },
-        { image: outfitComfort1, description: 'Flowy tunic with comfortable jeggings' },
+        { image: outfitComfort2, description: 'Athleisure set with high-waisted design' },
+        { image: outfitComfort3, description: 'Flowy tunic with comfortable jeggings' },
         { image: outfitComfort1, description: 'Soft jersey dress with sneakers' },
-        { image: outfitComfort1, description: 'Relaxed fit jeans with cotton tee' },
-        { image: outfitComfort1, description: 'Knit cardigan with yoga pants' },
+        { image: outfitComfort2, description: 'Relaxed fit jeans with cotton tee' },
+        { image: outfitComfort3, description: 'Knit cardigan with yoga pants' },
         { image: outfitComfort1, description: 'Casual jumpsuit in soft fabric' },
-        { image: outfitComfort1, description: 'Lounge wear set for home comfort' },
-        { image: outfitComfort1, description: 'Stretchy midi dress with flats' },
+        { image: outfitComfort2, description: 'Lounge wear set for home comfort' },
+        { image: outfitComfort3, description: 'Stretchy midi dress with flats' },
         { image: outfitComfort1, description: 'Comfortable palazzo set' }
       ],
       'Indo-Fusion': [
         { image: outfitFusion1, description: 'Crop top with dhoti pants fusion look' },
-        { image: outfitFusion1, description: 'Western jacket over Indian kurta' },
-        { image: outfitFusion1, description: 'Palazzo pants with fitted Western top' },
+        { image: outfitFusion2, description: 'Western jacket over Indian kurta' },
+        { image: outfitFusion3, description: 'Palazzo pants with fitted Western top' },
         { image: outfitFusion1, description: 'Saree draped with belt for modern twist' },
-        { image: outfitFusion1, description: 'Indo-western dress with ethnic prints' },
-        { image: outfitFusion1, description: 'Denim jacket over ethnic dress' },
+        { image: outfitFusion2, description: 'Indo-western dress with ethnic prints' },
+        { image: outfitFusion3, description: 'Denim jacket over ethnic dress' },
         { image: outfitFusion1, description: 'Traditional dupatta with Western outfit' },
-        { image: outfitFusion1, description: 'Fusion maxi with Indian embroidery' },
-        { image: outfitFusion1, description: 'Contemporary kurta with jeans' },
+        { image: outfitFusion2, description: 'Fusion maxi with Indian embroidery' },
+        { image: outfitFusion3, description: 'Contemporary kurta with jeans' },
         { image: outfitFusion1, description: 'Ethnic skirt with modern blouse' }
       ]
     };
