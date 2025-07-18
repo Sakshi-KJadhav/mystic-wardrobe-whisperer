@@ -21,7 +21,8 @@ const StylingSection = ({ styleData }: StylingProps) => {
         bottoms: { tip: "High-waisted styles maintain your silhouette", image: stylingImage },
         dresses: { tip: "Bodycon and wrap dresses are perfect for you", image: stylingImage },
         'jeans rise': { tip: "High-rise and mid-rise jeans maintain your waist definition", image: stylingImage },
-        'color blocking': { tip: "Use color blocking to emphasize your natural curves", image: stylingImage }
+        'color blocking': { tip: "Use color blocking to emphasize your natural curves", image: stylingImage },
+        'tuck/untuck': { tip: "Tuck in tops to showcase your defined waistline", image: stylingImage }
       },
       pear: {
         necklines: { tip: "Boat necks and off-shoulder styles balance your shoulders", image: stylingImage },
@@ -30,7 +31,8 @@ const StylingSection = ({ styleData }: StylingProps) => {
         bottoms: { tip: "Dark, straight-leg pants elongate your silhouette", image: stylingImage },
         dresses: { tip: "A-line and fit-and-flare dresses are flattering", image: stylingImage },
         'jeans rise': { tip: "High-rise jeans help balance your proportions", image: stylingImage },
-        'color blocking': { tip: "Use lighter colors on top, darker below for balance", image: stylingImage }
+        'color blocking': { tip: "Use lighter colors on top, darker below for balance", image: stylingImage },
+        'tuck/untuck': { tip: "Partial tucks or half-tucks add visual interest to your upper body", image: stylingImage }
       },
       apple: {
         necklines: { tip: "V-necks and deep scoop necks elongate your torso", image: stylingImage },
@@ -39,7 +41,8 @@ const StylingSection = ({ styleData }: StylingProps) => {
         bottoms: { tip: "High-waisted bottoms with structure support your figure", image: stylingImage },
         dresses: { tip: "Empire waist and A-line dresses are perfect", image: stylingImage },
         'jeans rise': { tip: "High-rise jeans create a defined waistline", image: stylingImage },
-        'color blocking': { tip: "Use vertical color blocks to elongate your torso", image: stylingImage }
+        'color blocking': { tip: "Use vertical color blocks to elongate your torso", image: stylingImage },
+        'tuck/untuck': { tip: "Leave tops untucked or try a loose front tuck for comfort", image: stylingImage }
       },
       rectangle: {
         necklines: { tip: "Sweetheart and square necks create curves", image: stylingImage },
@@ -48,7 +51,8 @@ const StylingSection = ({ styleData }: StylingProps) => {
         bottoms: { tip: "Straight-leg and wide-leg pants are ideal", image: stylingImage },
         dresses: { tip: "Sheath and shift dresses complement your frame", image: stylingImage },
         'jeans rise': { tip: "Mid-rise jeans work best for your straight silhouette", image: stylingImage },
-        'color blocking': { tip: "Use horizontal color blocks to create curves", image: stylingImage }
+        'color blocking': { tip: "Use horizontal color blocks to create curves", image: stylingImage },
+        'tuck/untuck': { tip: "Experiment with both - tuck with belts to create waist definition", image: stylingImage }
       },
       'inverted triangle': {
         necklines: { tip: "Scoop necks and cowl necks soften broad shoulders", image: stylingImage },
@@ -57,7 +61,8 @@ const StylingSection = ({ styleData }: StylingProps) => {
         bottoms: { tip: "Wide-leg pants and flared styles add volume below", image: stylingImage },
         dresses: { tip: "A-line and fit-and-flare dresses are flattering", image: stylingImage },
         'jeans rise': { tip: "Low-rise to mid-rise jeans help balance your proportions", image: stylingImage },
-        'color blocking': { tip: "Use darker colors on top, brighter below to balance", image: stylingImage }
+        'color blocking': { tip: "Use darker colors on top, brighter below to balance", image: stylingImage },
+        'tuck/untuck': { tip: "Leave tops untucked to soften your shoulder line", image: stylingImage }
       }
     };
 
