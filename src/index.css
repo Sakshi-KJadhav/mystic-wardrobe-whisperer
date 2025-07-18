@@ -20,6 +20,7 @@ All colors MUST be HSL.
     --primary: 280 65% 35%;
     --primary-foreground: 312 100% 98%;
     --primary-glow: 285 75% 60%;
+    --primary-dark: 275 70% 25%;
 
     --secondary: 312 30% 92%;
     --secondary-foreground: 312 20% 25%;
@@ -29,6 +30,7 @@ All colors MUST be HSL.
 
     --accent: 45 85% 65%;
     --accent-foreground: 312 15% 12%;
+    --accent-light: 50 90% 75%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -37,17 +39,22 @@ All colors MUST be HSL.
     --input: 312 25% 94%;
     --ring: 280 65% 35%;
 
-    /* Mystic gradients */
+    /* Enhanced Mystic gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary-glow)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-light)));
     --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary-dark)), hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-footer: linear-gradient(135deg, hsl(var(--primary-dark)), hsl(var(--primary)));
 
-    /* Shadows */
+    /* Enhanced shadows */
     --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.2);
     --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.3);
+    --shadow-premium: 0 20px 60px -10px hsl(var(--primary) / 0.25);
+    --shadow-card: 0 4px 20px -2px hsl(var(--primary) / 0.1);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --radius: 0.5rem;
 
@@ -113,6 +120,44 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/30 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/50;
+  }
+}
+
+@layer components {
+  .mystic-card {
+    @apply bg-card/80 backdrop-blur-sm border border-border/50 rounded-lg shadow-card;
+  }
+
+  .mystic-glow {
+    @apply relative;
+  }
+
+  .mystic-glow::before {
+    content: '';
+    @apply absolute inset-0 rounded-lg bg-gradient-primary opacity-0 transition-opacity duration-300;
+    filter: blur(20px);
+    z-index: -1;
+  }
+
+  .mystic-glow:hover::before {
+    @apply opacity-30;
   }
 }
