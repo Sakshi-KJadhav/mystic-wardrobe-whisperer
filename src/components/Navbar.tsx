@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sparkles } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 interface NavbarProps {
   onNavigate: (section: string) => void;
@@ -48,6 +49,7 @@ const Navbar = ({ onNavigate }: NavbarProps) => {
             >
               Outfits
             </Button>
+            <ThemeToggle />
             <Button
               variant="gradient"
               size="sm"

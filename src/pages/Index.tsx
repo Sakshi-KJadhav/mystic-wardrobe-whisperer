@@ -139,6 +139,16 @@ const Index = () => {
               <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-2xl mx-auto leading-relaxed">
                 Discover your perfect style with AI-powered body shape analysis and personalized fashion recommendations
               </p>
+              
+              {/* Givenchy Quote */}
+              <div className="mb-8 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+                <blockquote className="text-lg md:text-xl italic text-white/80 max-w-3xl mx-auto border-l-4 border-accent pl-4">
+                  "The dress must follow the body of a woman, not the body following the shape of the dress"
+                </blockquote>
+                <cite className="block text-sm text-white/60 mt-2">
+                  — Hubert de Givenchy
+                </cite>
+              </div>
               <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up">
                 <Button 
                   variant="hero" 
