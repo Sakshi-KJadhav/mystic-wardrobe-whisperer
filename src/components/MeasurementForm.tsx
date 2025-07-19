@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Ruler } from 'lucide-react';
 
 interface MeasurementData {
@@ -28,8 +29,17 @@ const MeasurementForm = ({ onSubmit }: MeasurementFormProps) => {
     legLength: ''
   });
 
+  const [unit, setUnit] = useState<'inches' | 'cm'>('inches');
+
   const handleInputChange = (field: keyof MeasurementData, value: string) => {
     setMeasurements(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Convert cm to inches (1 inch = 2.54 cm)
+  const convertToInches = (value: string, unit: 'inches' | 'cm'): string => {
+    if (unit === 'inches' || !value) return value;
+    const cm = parseFloat(value);
+    return (cm / 2.54).toFixed(2);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -43,10 +53,20 @@ const MeasurementForm = ({ onSubmit }: MeasurementFormProps) => {
       return;
     }
 
-    // Store in localStorage
-    localStorage.setItem('mysticMeasurements', JSON.stringify(measurements));
+    // Convert measurements to inches if needed
+    const convertedMeasurements: MeasurementData = {
+      bust: convertToInches(measurements.bust, unit),
+      waist: convertToInches(measurements.waist, unit),
+      hips: convertToInches(measurements.hips, unit),
+      shoulders: convertToInches(measurements.shoulders, unit),
+      torsoLength: convertToInches(measurements.torsoLength, unit),
+      legLength: convertToInches(measurements.legLength, unit)
+    };
+
+    // Store in localStorage with unit info
+    localStorage.setItem('mysticMeasurements', JSON.stringify({ measurements, unit }));
     
-    onSubmit(measurements);
+    onSubmit(convertedMeasurements);
   };
 
   return (
@@ -69,13 +89,25 @@ const MeasurementForm = ({ onSubmit }: MeasurementFormProps) => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="mb-6">
+                  <Label htmlFor="unit">Measurement Unit</Label>
+                  <Select value={unit} onValueChange={(value: 'inches' | 'cm') => setUnit(value)}>
+                    <SelectTrigger className="w-full mt-2">
+                      <SelectValue placeholder="Select unit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="inches">Inches</SelectItem>
+                      <SelectItem value="cm">Centimeters (cm)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="bust">Bust (inches)</Label>
+                    <Label htmlFor="bust">Bust ({unit})</Label>
                     <Input
                       id="bust"
                       type="number"
-                      placeholder="e.g. 36"
+                      placeholder={unit === 'inches' ? 'e.g. 36' : 'e.g. 91'}
                       value={measurements.bust}
                       onChange={(e) => handleInputChange('bust', e.target.value)}
                       className="transition-all focus:shadow-glow"
@@ -83,11 +115,11 @@ const MeasurementForm = ({ onSubmit }: MeasurementFormProps) => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="waist">Waist (inches)</Label>
+                    <Label htmlFor="waist">Waist ({unit})</Label>
                     <Input
                       id="waist"
                       type="number"
-                      placeholder="e.g. 28"
+                      placeholder={unit === 'inches' ? 'e.g. 28' : 'e.g. 71'}
                       value={measurements.waist}
                       onChange={(e) => handleInputChange('waist', e.target.value)}
                       className="transition-all focus:shadow-glow"
@@ -95,11 +127,11 @@ const MeasurementForm = ({ onSubmit }: MeasurementFormProps) => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="hips">Hips (inches)</Label>
+                    <Label htmlFor="hips">Hips ({unit})</Label>
                     <Input
                       id="hips"
                       type="number"
-                      placeholder="e.g. 38"
+                      placeholder={unit === 'inches' ? 'e.g. 38' : 'e.g. 96'}
                       value={measurements.hips}
                       onChange={(e) => handleInputChange('hips', e.target.value)}
                       className="transition-all focus:shadow-glow"
@@ -107,11 +139,11 @@ const MeasurementForm = ({ onSubmit }: MeasurementFormProps) => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="shoulders">Shoulders (inches)</Label>
+                    <Label htmlFor="shoulders">Shoulders ({unit})</Label>
                     <Input
                       id="shoulders"
                       type="number"
-                      placeholder="e.g. 16"
+                      placeholder={unit === 'inches' ? 'e.g. 16' : 'e.g. 41'}
                       value={measurements.shoulders}
                       onChange={(e) => handleInputChange('shoulders', e.target.value)}
                       className="transition-all focus:shadow-glow"
@@ -119,11 +151,11 @@ const MeasurementForm = ({ onSubmit }: MeasurementFormProps) => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="torsoLength">Torso Length (inches)</Label>
+                    <Label htmlFor="torsoLength">Torso Length ({unit})</Label>
                     <Input
                       id="torsoLength"
                       type="number"
-                      placeholder="e.g. 24"
+                      placeholder={unit === 'inches' ? 'e.g. 24' : 'e.g. 61'}
                       value={measurements.torsoLength}
                       onChange={(e) => handleInputChange('torsoLength', e.target.value)}
                       className="transition-all focus:shadow-glow"
@@ -131,11 +163,11 @@ const MeasurementForm = ({ onSubmit }: MeasurementFormProps) => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="legLength">Leg Length (inches)</Label>
+                    <Label htmlFor="legLength">Leg Length ({unit})</Label>
                     <Input
                       id="legLength"
                       type="number"
-                      placeholder="e.g. 32"
+                      placeholder={unit === 'inches' ? 'e.g. 32' : 'e.g. 81'}
                       value={measurements.legLength}
                       onChange={(e) => handleInputChange('legLength', e.target.value)}
                       className="transition-all focus:shadow-glow"
