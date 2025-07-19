@@ -51,7 +51,7 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-center md:text-left">
               <p className="text-primary-foreground/60 text-sm">
-                © 2024 Mystic. All rights reserved.
+                © 2025 Mystic. All rights reserved.
               </p>
             </div>
             <div className="flex items-center gap-2 text-primary-foreground/60 text-sm">
