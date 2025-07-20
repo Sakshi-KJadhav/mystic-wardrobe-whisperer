@@ -29,6 +29,13 @@ interface ImageRegion {
   textureComplexity: number;
 }
 
+interface ClothingValidationResult {
+  isClothing: boolean;
+  confidence: number;
+  reasons: string[];
+  suggestion?: string;
+}
+
 class ClothingAnalysisService {
   private isInitialized = false;
 
@@ -51,12 +58,21 @@ class ClothingAnalysisService {
     }
 
     try {
-      console.log('Analyzing clothing image with advanced computer vision...');
+      console.log('Analyzing image for clothing content...');
       
       // Create image element to analyze
       const imageElement = await this.loadImage(imageFile);
       
-      // Perform comprehensive analysis
+      // First, validate if the image contains clothing
+      const validationResult = await this.validateClothingContent(imageElement);
+      
+      if (!validationResult.isClothing) {
+        throw new Error(`Not a clothing image. ${validationResult.suggestion || 'Please upload an image showing clothing items, outfits, or fashion.'}`);
+      }
+      
+      console.log('Clothing detected, performing detailed analysis...');
+      
+      // Perform comprehensive analysis only if clothing is detected
       const analysis = await this.performAdvancedAnalysis(imageElement);
       
       console.log('Advanced image analysis complete:', analysis);
@@ -64,7 +80,7 @@ class ClothingAnalysisService {
       return analysis;
     } catch (error) {
       console.error('Error analyzing clothing:', error);
-      return this.generateIntelligentFallback();
+      throw error; // Re-throw to show specific validation errors
     }
   }
 
@@ -754,6 +770,371 @@ class ClothingAnalysisService {
     ];
 
     return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+  }
+
+  private async validateClothingContent(imageElement: HTMLImageElement): Promise<ClothingValidationResult> {
+    try {
+      console.log('Validating if image contains clothing...');
+      
+      // Create canvas for validation analysis
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      if (!ctx) {
+        throw new Error('Cannot get canvas context');
+      }
+
+      // Set canvas size for validation (smaller for faster processing)
+      const maxSize = 400;
+      const scale = Math.min(maxSize / imageElement.width, maxSize / imageElement.height);
+      canvas.width = imageElement.width * scale;
+      canvas.height = imageElement.height * scale;
+      
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(imageElement, 0, 0, canvas.width, canvas.height);
+      
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      
+      // Perform multiple validation checks
+      const validationChecks = [
+        this.checkColorPatterns(imageData),
+        this.checkTextileTextures(imageData),
+        this.checkGarmentShapes(imageData),
+        this.checkFabricCharacteristics(imageData),
+        this.checkClothingIndicators(imageData),
+        this.checkNonClothingIndicators(imageData)
+      ];
+      
+      const results = await Promise.all(validationChecks);
+      const overallResult = this.evaluateValidationResults(results);
+      
+      console.log('Clothing validation result:', overallResult);
+      return overallResult;
+      
+    } catch (error) {
+      console.error('Error in clothing validation:', error);
+      // If validation fails, assume it might be clothing to avoid false negatives
+      return {
+        isClothing: true,
+        confidence: 50,
+        reasons: ['Validation error - proceeding with analysis'],
+        suggestion: 'Image quality may affect analysis accuracy'
+      };
+    }
+  }
+
+  private checkColorPatterns(imageData: ImageData): { score: number; indicators: string[] } {
+    const colors = this.performAdvancedColorAnalysis(imageData);
+    const indicators: string[] = [];
+    let score = 0;
+    
+    // Check for typical clothing color patterns
+    if (colors.length >= 1 && colors.length <= 5) {
+      score += 20;
+      indicators.push('appropriate color complexity for garments');
+    }
+    
+    // Check for common clothing colors
+    const clothingColors = ['black', 'white', 'navy', 'gray', 'blue', 'red', 'brown', 'beige', 'green'];
+    const hasClothingColors = colors.some(c => clothingColors.includes(c.name));
+    if (hasClothingColors) {
+      score += 15;
+      indicators.push('contains typical clothing colors');
+    }
+    
+    // Check color distribution (clothing usually has dominant colors)
+    if (colors.length > 0 && colors[0].percentage > 25) {
+      score += 10;
+      indicators.push('has dominant color areas');
+    }
+    
+    // Penalize if too many bright/neon colors (unlikely for clothing)
+    const brightColors = colors.filter(c => 
+      ['yellow', 'orange', 'light blue', 'pink'].includes(c.name) && c.percentage > 30
+    );
+    if (brightColors.length > 2) {
+      score -= 15;
+      indicators.push('excessive bright colors detected');
+    }
+    
+    return { score, indicators };
+  }
+
+  private checkTextileTextures(imageData: ImageData): { score: number; indicators: string[] } {
+    const texture = this.analyzeTexture(imageData);
+    const indicators: string[] = [];
+    let score = 0;
+    
+    // Check for textile-like textures
+    if (texture.complexity > 100 && texture.complexity < 2000) {
+      score += 25;
+      indicators.push('textile-like texture complexity');
+    }
+    
+    // Check for fabric patterns
+    if (texture.patterns.includes('textured') || texture.patterns.includes('smooth')) {
+      score += 15;
+      indicators.push('fabric-like surface patterns');
+    }
+    
+    // Check uniformity (fabrics have some uniformity but not too much)
+    if (texture.uniformity > 30 && texture.uniformity < 90) {
+      score += 10;
+      indicators.push('appropriate texture uniformity for fabric');
+    }
+    
+    // Penalize if texture is too chaotic (might be nature, objects, etc.)
+    if (texture.complexity > 3000) {
+      score -= 20;
+      indicators.push('texture too chaotic for clothing');
+    }
+    
+    return { score, indicators };
+  }
+
+  private checkGarmentShapes(imageData: ImageData): { score: number; indicators: string[] } {
+    const edges = this.detectEdgesAndContours(imageData);
+    const indicators: string[] = [];
+    let score = 0;
+    
+    // Check for garment-like shapes and contours
+    if (edges.contours.length > 2 && edges.contours.length < 20) {
+      score += 20;
+      indicators.push('appropriate number of contours for garments');
+    }
+    
+    // Check edge strength (garments have moderate edge definition)
+    if (edges.strength > 30 && edges.strength < 100) {
+      score += 15;
+      indicators.push('garment-like edge definition');
+    }
+    
+    // Look for rectangular/curved shapes typical of clothing
+    const hasClothingShapes = this.detectClothingShapes(edges.contours);
+    if (hasClothingShapes.found) {
+      score += 20;
+      indicators.push(`detected ${hasClothingShapes.type} shapes`);
+    }
+    
+    // Penalize if too many small contours (might be detailed objects, nature)
+    if (edges.contours.length > 30) {
+      score -= 15;
+      indicators.push('too many small contours for clothing');
+    }
+    
+    return { score, indicators };
+  }
+
+  private checkFabricCharacteristics(imageData: ImageData): { score: number; indicators: string[] } {
+    const regions = this.analyzeImageRegions(imageData);
+    const indicators: string[] = [];
+    let score = 0;
+    
+    // Check for fabric-like characteristics across regions
+    const avgTextureComplexity = regions.reduce((sum, r) => sum + r.textureComplexity, 0) / regions.length;
+    if (avgTextureComplexity > 10 && avgTextureComplexity < 60) {
+      score += 15;
+      indicators.push('fabric-like texture across regions');
+    }
+    
+    // Check for draping/folding patterns (varying brightness in regions)
+    const brightnessVariation = this.calculateBrightnessVariation(regions);
+    if (brightnessVariation > 20 && brightnessVariation < 80) {
+      score += 10;
+      indicators.push('fabric draping/folding patterns detected');
+    }
+    
+    // Check for consistent material properties
+    const colorConsistency = this.checkColorConsistency(regions);
+    if (colorConsistency > 0.6) {
+      score += 10;
+      indicators.push('consistent material properties');
+    }
+    
+    return { score, indicators };
+  }
+
+  private checkClothingIndicators(imageData: ImageData): { score: number; indicators: string[] } {
+    const indicators: string[] = [];
+    let score = 0;
+    
+    // Check aspect ratio for typical clothing photos
+    const aspectRatio = imageData.width / imageData.height;
+    if (aspectRatio > 0.5 && aspectRatio < 2.0) {
+      score += 10;
+      indicators.push('appropriate aspect ratio for clothing');
+    }
+    
+    // Check for human-scale objects (not too small/large for clothing)
+    const imageSize = imageData.width * imageData.height;
+    if (imageSize > 10000) { // Reasonable resolution
+      score += 5;
+      indicators.push('sufficient image resolution');
+    }
+    
+    // Look for typical clothing arrangement patterns
+    const regions = this.analyzeImageRegions(imageData);
+    const hasTypicalArrangement = this.checkTypicalClothingArrangement(regions);
+    if (hasTypicalArrangement) {
+      score += 15;
+      indicators.push('typical clothing arrangement detected');
+    }
+    
+    return { score, indicators };
+  }
+
+  private checkNonClothingIndicators(imageData: ImageData): { score: number; indicators: string[] } {
+    const indicators: string[] = [];
+    let score = 0; // This is penalty score (negative indicators)
+    
+    // Check for nature indicators (green dominance, organic textures)
+    const colors = this.performAdvancedColorAnalysis(imageData);
+    const greenDominance = colors.find(c => c.name === 'green')?.percentage || 0;
+    if (greenDominance > 40) {
+      score -= 25;
+      indicators.push('high green content suggests nature/plants');
+    }
+    
+    // Check for sky indicators (blue dominance in upper regions)
+    const regions = this.analyzeImageRegions(imageData);
+    const topRegion = regions[0];
+    const blueDominance = topRegion.dominantColors.find(c => c.color === 'blue')?.percentage || 0;
+    if (blueDominance > 50) {
+      score -= 20;
+      indicators.push('blue dominance in top region suggests sky');
+    }
+    
+    // Check for face/skin indicators (skin tone colors)
+    const skinTones = colors.filter(c => 
+      ['beige', 'tan', 'cream', 'pink'].includes(c.name) && c.percentage > 30
+    );
+    if (skinTones.length > 1) {
+      score -= 10; // Mild penalty as clothing photos can include faces
+      indicators.push('possible skin tones detected');
+    }
+    
+    // Check for text/document indicators (high contrast, geometric patterns)
+    const texture = this.analyzeTexture(imageData);
+    if (texture.complexity < 50 && regions.some(r => r.colorVariance > 2000)) {
+      score -= 30;
+      indicators.push('high contrast patterns suggest text/documents');
+    }
+    
+    // Check for architectural/building indicators
+    const edges = this.detectEdgesAndContours(imageData);
+    if (edges.strength > 80 && regions.some(r => r.edgeDensity > 0.2)) {
+      score -= 15;
+      indicators.push('strong geometric edges suggest architecture');
+    }
+    
+    return { score: -score, indicators }; // Convert penalty to negative score
+  }
+
+  private detectClothingShapes(contours: any[]): { found: boolean; type: string } {
+    if (contours.length === 0) return { found: false, type: 'none' };
+    
+    // Look for rectangular shapes (common in clothing)
+    const hasRectangularShapes = contours.some(contour => {
+      if (contour.length < 4) return false;
+      
+      // Simple rectangularity check
+      const bbox = this.getBoundingBox(contour);
+      const area = bbox.width * bbox.height;
+      const contourArea = contour.length; // Approximation
+      
+      return contourArea / area > 0.3 && contourArea / area < 0.8;
+    });
+    
+    if (hasRectangularShapes) {
+      return { found: true, type: 'rectangular garment' };
+    }
+    
+    // Look for curved shapes (common in fitted clothing)
+    const hasCurvedShapes = contours.some(contour => contour.length > 20);
+    if (hasCurvedShapes) {
+      return { found: true, type: 'curved garment' };
+    }
+    
+    return { found: false, type: 'unclear' };
+  }
+
+  private getBoundingBox(contour: { x: number; y: number }[]) {
+    const xs = contour.map(p => p.x);
+    const ys = contour.map(p => p.y);
+    return {
+      x: Math.min(...xs),
+      y: Math.min(...ys),
+      width: Math.max(...xs) - Math.min(...xs),
+      height: Math.max(...ys) - Math.min(...ys)
+    };
+  }
+
+  private calculateBrightnessVariation(regions: ImageRegion[]): number {
+    const brightnesses = regions.map(r => r.averageBrightness);
+    const avg = brightnesses.reduce((sum, b) => sum + b, 0) / brightnesses.length;
+    const variance = brightnesses.reduce((sum, b) => sum + Math.pow(b - avg, 2), 0) / brightnesses.length;
+    return Math.sqrt(variance);
+  }
+
+  private checkColorConsistency(regions: ImageRegion[]): number {
+    // Check if similar colors appear across regions
+    const allColors = regions.flatMap(r => r.dominantColors.map(c => c.color));
+    const uniqueColors = [...new Set(allColors)];
+    
+    if (uniqueColors.length === 0) return 0;
+    
+    // Calculate how often colors repeat across regions
+    let consistencyScore = 0;
+    uniqueColors.forEach(color => {
+      const occurrences = allColors.filter(c => c === color).length;
+      if (occurrences > 1) {
+        consistencyScore += occurrences / regions.length;
+      }
+    });
+    
+    return Math.min(consistencyScore / uniqueColors.length, 1);
+  }
+
+  private checkTypicalClothingArrangement(regions: ImageRegion[]): boolean {
+    // Check if there's a logical clothing arrangement (top-to-bottom variation)
+    const topRegion = regions[0];
+    const middleRegion = regions[2];
+    const bottomRegion = regions[4];
+    
+    // Clothing typically has different characteristics in different regions
+    const topToMiddleVariation = Math.abs(topRegion.textureComplexity - middleRegion.textureComplexity);
+    const middleToBottomVariation = Math.abs(middleRegion.textureComplexity - bottomRegion.textureComplexity);
+    
+    // Some variation suggests different clothing parts or draping
+    return (topToMiddleVariation > 5 || middleToBottomVariation > 5) && 
+           (topToMiddleVariation < 50 && middleToBottomVariation < 50);
+  }
+
+  private evaluateValidationResults(results: { score: number; indicators: string[] }[]): ClothingValidationResult {
+    const totalScore = results.reduce((sum, result) => sum + result.score, 0);
+    const allIndicators = results.flatMap(result => result.indicators);
+    
+    // Determine if it's clothing based on total score
+    const isClothing = totalScore >= 40; // Threshold for clothing detection
+    const confidence = Math.min(Math.max(totalScore, 0), 100);
+    
+    let suggestion = '';
+    if (!isClothing) {
+      if (totalScore < 0) {
+        suggestion = 'This appears to be a nature, architecture, or non-clothing image. Please upload an image showing clothing items or outfits.';
+      } else if (totalScore < 20) {
+        suggestion = 'This image may not clearly show clothing. Please ensure the image shows garments, outfits, or fashion items clearly.';
+      } else {
+        suggestion = 'The image content is unclear. Please upload a clearer image of clothing or fashion items.';
+      }
+    }
+    
+    return {
+      isClothing,
+      confidence,
+      reasons: allIndicators,
+      suggestion
+    };
   }
 }
 
