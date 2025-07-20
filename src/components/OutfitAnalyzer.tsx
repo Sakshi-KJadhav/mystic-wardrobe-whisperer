@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Upload, Image as ImageIcon, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { Upload, Image as ImageIcon, CheckCircle, XCircle, Loader2, AlertTriangle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface StyleData {
@@ -14,11 +14,23 @@ interface OutfitAnalyzerProps {
   styleData: StyleData;
 }
 
+interface DetectedFeatures {
+  neckline: string;
+  sleeves: string;
+  top_style: string;
+  bottom_style: string;
+  dress_style: string;
+  rise: string;
+  colors: string[];
+  fit: string;
+}
+
 interface AnalysisResult {
   suitability: 'excellent' | 'good' | 'fair' | 'poor';
   score: number;
+  detectedFeatures: DetectedFeatures;
+  matches: { category: string; recommendation: string; match: boolean; reason: string }[];
   suggestions: string[];
-  reasons: string[];
 }
 
 const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
@@ -27,6 +39,64 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Get styling recommendations for the user's body shape
+  const getStylingRecommendations = (bodyShape: string) => {
+    const recommendations = {
+      hourglass: {
+        necklines: "V-necks and scoop necks highlight your balanced proportions",
+        sleeves: "Fitted sleeves show off your defined waist",
+        tops: "Wrap tops and fitted styles accentuate your curves",
+        bottoms: "High-waisted styles maintain your silhouette",
+        dresses: "Bodycon and wrap dresses are perfect for you",
+        'jeans rise': "High-rise and mid-rise jeans maintain your waist definition",
+        'color blocking': "Use color blocking to emphasize your natural curves",
+        'tuck/untuck': "Tuck in tops to showcase your defined waistline"
+      },
+      pear: {
+        necklines: "Boat necks and off-shoulder styles balance your shoulders",
+        sleeves: "Statement sleeves add volume to your upper body",
+        tops: "Bright colors and patterns on top draw attention upward",
+        bottoms: "Dark, straight-leg pants elongate your silhouette",
+        dresses: "A-line and fit-and-flare dresses are flattering",
+        'jeans rise': "High-rise jeans help balance your proportions",
+        'color blocking': "Use lighter colors on top, darker below for balance",
+        'tuck/untuck': "Partial tucks or half-tucks add visual interest to your upper body"
+      },
+      apple: {
+        necklines: "V-necks and deep scoop necks elongate your torso",
+        sleeves: "3/4 sleeves and flutter sleeves are flattering",
+        tops: "Empire waist and flowy tops create a defined silhouette",
+        bottoms: "High-waisted bottoms with structure support your figure",
+        dresses: "Empire waist and A-line dresses are perfect",
+        'jeans rise': "High-rise jeans create a defined waistline",
+        'color blocking': "Use vertical color blocks to elongate your torso",
+        'tuck/untuck': "Leave tops untucked or try a loose front tuck for comfort"
+      },
+      rectangle: {
+        necklines: "Sweetheart and square necks create curves",
+        sleeves: "Puffy and gathered sleeves add dimension",
+        tops: "Peplum and ruffled tops create the illusion of curves",
+        bottoms: "Straight-leg and wide-leg pants are ideal",
+        dresses: "Sheath and shift dresses complement your frame",
+        'jeans rise': "Mid-rise jeans work best for your straight silhouette",
+        'color blocking': "Use horizontal color blocks to create curves",
+        'tuck/untuck': "Experiment with both - tuck with belts to create waist definition"
+      },
+      'inverted triangle': {
+        necklines: "Scoop necks and cowl necks soften broad shoulders",
+        sleeves: "Sleeveless or cap sleeves don't add bulk",
+        tops: "Darker colors on top with lighter bottoms balance proportions",
+        bottoms: "Wide-leg pants and flared styles add volume below",
+        dresses: "A-line and fit-and-flare dresses are flattering",
+        'jeans rise': "Low-rise to mid-rise jeans help balance your proportions",
+        'color blocking': "Use darker colors on top, brighter below to balance",
+        'tuck/untuck': "Leave tops untucked to soften your shoulder line"
+      }
+    };
+
+    return recommendations[bodyShape as keyof typeof recommendations] || recommendations.hourglass;
+  };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -65,16 +135,19 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
     setIsAnalyzing(true);
     
     try {
-      // Simulate AI analysis - In a real app, this would call an AI service
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Simulate AI image analysis
+      await new Promise(resolve => setTimeout(resolve, 3000));
       
-      // Mock analysis based on body shape
-      const mockAnalysis = generateMockAnalysis(styleData.bodyShape, styleData.proportionType);
-      setAnalysisResult(mockAnalysis);
+      // Mock clothing feature detection
+      const detectedFeatures = await detectClothingFeatures(selectedImage);
+      
+      // Compare with styling recommendations
+      const analysis = compareWithRecommendations(detectedFeatures, styleData.bodyShape);
+      setAnalysisResult(analysis);
       
       toast({
         title: "Analysis complete!",
-        description: "Your outfit has been analyzed successfully",
+        description: "Your outfit features have been analyzed",
       });
     } catch (error) {
       toast({
@@ -87,83 +160,129 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
     }
   };
 
-  const generateMockAnalysis = (bodyShape: string, proportionType: string): AnalysisResult => {
-    // Mock analysis logic based on body shape and proportion type
-    const analyses = {
-      hourglass: {
-        suitability: 'excellent' as const,
-        score: 92,
-        suggestions: [
-          'This outfit beautifully accentuates your waist',
-          'The fit perfectly complements your balanced proportions',
-          'Consider adding a belt to further highlight your natural waistline'
-        ],
-        reasons: [
-          'Emphasizes your natural curves',
-          'Balanced silhouette matches your body shape',
-          'Proportions are well-suited for your figure'
-        ]
-      },
-      pear: {
-        suitability: 'good' as const,
-        score: 78,
-        suggestions: [
-          'Try adding volume to the upper body with structured shoulders',
-          'A-line silhouettes work wonderfully for your shape',
-          'Consider lighter colors on top to balance your proportions'
-        ],
-        reasons: [
-          'Balances your lower body proportions',
-          'Creates visual interest in the upper body',
-          'Maintains your natural silhouette'
-        ]
-      },
-      apple: {
-        suitability: 'fair' as const,
-        score: 65,
-        suggestions: [
-          'Empire waistlines would be more flattering',
-          'Try flowing fabrics that don\'t cling to the midsection',
-          'V-necks help elongate your torso'
-        ],
-        reasons: [
-          'Could better accommodate your midsection',
-          'Might benefit from different cut styles',
-          'Alternative silhouettes could be more flattering'
-        ]
-      },
-      rectangle: {
-        suitability: 'good' as const,
-        score: 81,
-        suggestions: [
-          'Add curves with ruching or gathering at the waist',
-          'Layering can create more dimension',
-          'Peplum styles would add feminine curves'
-        ],
-        reasons: [
-          'Works well with your straight silhouette',
-          'Creates visual interest and shape',
-          'Complements your athletic build'
-        ]
-      },
-      'inverted triangle': {
-        suitability: 'good' as const,
-        score: 76,
-        suggestions: [
-          'Add volume to your lower body for balance',
-          'A-line skirts would complement your shoulders',
-          'Softer fabrics can balance your strong shoulder line'
-        ],
-        reasons: [
-          'Balances your shoulder width',
-          'Creates harmony in your proportions',
-          'Maintains your strong upper body presence'
-        ]
-      }
+  // Mock function to simulate clothing feature detection from image
+  const detectClothingFeatures = async (imageFile: File): Promise<DetectedFeatures> => {
+    // In a real implementation, this would use computer vision/AI
+    // For now, we'll simulate random feature detection
+    const possibleFeatures = {
+      necklines: ['v-neck', 'scoop neck', 'boat neck', 'off-shoulder', 'sweetheart', 'square neck', 'cowl neck', 'crew neck'],
+      sleeves: ['sleeveless', 'cap sleeves', 'short sleeves', '3/4 sleeves', 'long sleeves', 'flutter sleeves', 'puffy sleeves', 'fitted sleeves'],
+      tops: ['fitted', 'loose', 'wrap', 'empire waist', 'peplum', 'crop top', 'blouse', 't-shirt'],
+      bottoms: ['high-waisted', 'mid-rise', 'low-rise', 'straight-leg', 'wide-leg', 'skinny', 'bootcut', 'flared'],
+      dresses: ['bodycon', 'a-line', 'fit-and-flare', 'empire waist', 'sheath', 'shift', 'maxi', 'midi'],
+      colors: ['black', 'white', 'navy', 'red', 'blue', 'green', 'pink', 'purple', 'yellow', 'gray'],
+      fits: ['tight', 'fitted', 'loose', 'relaxed', 'oversized']
     };
 
-    return analyses[bodyShape as keyof typeof analyses] || analyses.hourglass;
+    return {
+      neckline: possibleFeatures.necklines[Math.floor(Math.random() * possibleFeatures.necklines.length)],
+      sleeves: possibleFeatures.sleeves[Math.floor(Math.random() * possibleFeatures.sleeves.length)],
+      top_style: possibleFeatures.tops[Math.floor(Math.random() * possibleFeatures.tops.length)],
+      bottom_style: possibleFeatures.bottoms[Math.floor(Math.random() * possibleFeatures.bottoms.length)],
+      dress_style: possibleFeatures.dresses[Math.floor(Math.random() * possibleFeatures.dresses.length)],
+      rise: possibleFeatures.bottoms.filter(b => b.includes('rise'))[Math.floor(Math.random() * 3)],
+      colors: [possibleFeatures.colors[Math.floor(Math.random() * possibleFeatures.colors.length)]],
+      fit: possibleFeatures.fits[Math.floor(Math.random() * possibleFeatures.fits.length)]
+    };
   };
+
+  const compareWithRecommendations = (detected: DetectedFeatures, bodyShape: string): AnalysisResult => {
+    const recommendations = getStylingRecommendations(bodyShape);
+    const matches = [];
+    let totalScore = 0;
+    let matchCount = 0;
+
+    // Check neckline match
+    const necklineMatch = checkFeatureMatch(detected.neckline, recommendations.necklines);
+    matches.push({
+      category: 'Neckline',
+      recommendation: recommendations.necklines,
+      match: necklineMatch.match,
+      reason: necklineMatch.reason
+    });
+    if (necklineMatch.match) { totalScore += 25; matchCount++; }
+
+    // Check sleeves match
+    const sleevesMatch = checkFeatureMatch(detected.sleeves, recommendations.sleeves);
+    matches.push({
+      category: 'Sleeves',
+      recommendation: recommendations.sleeves,
+      match: sleevesMatch.match,
+      reason: sleevesMatch.reason
+    });
+    if (sleevesMatch.match) { totalScore += 25; matchCount++; }
+
+    // Check top style match
+    const topMatch = checkFeatureMatch(detected.top_style, recommendations.tops);
+    matches.push({
+      category: 'Top Style',
+      recommendation: recommendations.tops,
+      match: topMatch.match,
+      reason: topMatch.reason
+    });
+    if (topMatch.match) { totalScore += 25; matchCount++; }
+
+    // Check bottom/rise match
+    const bottomMatch = checkFeatureMatch(detected.rise || detected.bottom_style, recommendations['jeans rise']);
+    matches.push({
+      category: 'Bottom Style',
+      recommendation: recommendations['jeans rise'],
+      match: bottomMatch.match,
+      reason: bottomMatch.reason
+    });
+    if (bottomMatch.match) { totalScore += 25; matchCount++; }
+
+    // Calculate final score and suitability
+    const finalScore = Math.round(totalScore);
+    let suitability: 'excellent' | 'good' | 'fair' | 'poor';
+    
+    if (finalScore >= 75) suitability = 'excellent';
+    else if (finalScore >= 50) suitability = 'good';
+    else if (finalScore >= 25) suitability = 'fair';
+    else suitability = 'poor';
+
+    // Generate suggestions based on mismatches
+    const suggestions = [];
+    matches.forEach(match => {
+      if (!match.match) {
+        suggestions.push(`Consider ${match.recommendation.toLowerCase()} for your ${bodyShape} body shape`);
+      }
+    });
+
+    if (suggestions.length === 0) {
+      suggestions.push('This outfit perfectly matches your styling recommendations!');
+    }
+
+    return {
+      suitability,
+      score: finalScore,
+      detectedFeatures: detected,
+      matches,
+      suggestions
+    };
+  };
+
+  const checkFeatureMatch = (detected: string, recommendation: string): { match: boolean; reason: string } => {
+    const detectedLower = detected.toLowerCase();
+    const recommendationLower = recommendation.toLowerCase();
+    
+    // Extract key terms from recommendation
+    const keyTerms = recommendationLower.match(/(\w+[\-\w]*)\s*(necks?|sleeves?|waist|style|rise|jeans)/g) || [];
+    
+    // Check if detected feature matches any key terms
+    const isMatch = keyTerms.some(term => {
+      const cleanTerm = term.replace(/s$/, '').replace(/necks?|sleeves?|waist|style|rise|jeans/g, '').trim();
+      return detectedLower.includes(cleanTerm) || cleanTerm.includes(detectedLower);
+    });
+
+    return {
+      match: isMatch,
+      reason: isMatch 
+        ? `✓ ${detected} matches your recommended style`
+        : `✗ ${detected} doesn't align with recommended ${keyTerms.join(', ') || 'style'}`
+    };
+  };
+
 
   const getSuitabilityColor = (suitability: string) => {
     switch (suitability) {
@@ -178,7 +297,8 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
   const getSuitabilityIcon = (suitability: string) => {
     switch (suitability) {
       case 'excellent': case 'good': return <CheckCircle className="h-5 w-5" />;
-      case 'fair': case 'poor': return <XCircle className="h-5 w-5" />;
+      case 'fair': return <AlertTriangle className="h-5 w-5" />;
+      case 'poor': return <XCircle className="h-5 w-5" />;
       default: return null;
     }
   };
@@ -290,17 +410,39 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
                   </div>
                 </div>
 
-                {/* Reasons */}
+                {/* Detected Features */}
                 <div>
-                  <h4 className="font-semibold mb-3 text-primary">Why this works for you:</h4>
-                  <ul className="space-y-2">
-                    {analysisResult.reasons.map((reason, index) => (
-                      <li key={index} className="flex items-start gap-2 text-sm">
-                        <CheckCircle className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                        <span>{reason}</span>
-                      </li>
+                  <h4 className="font-semibold mb-3 text-primary">Detected Features:</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div><span className="font-medium">Neckline:</span> {analysisResult.detectedFeatures.neckline}</div>
+                    <div><span className="font-medium">Sleeves:</span> {analysisResult.detectedFeatures.sleeves}</div>
+                    <div><span className="font-medium">Top Style:</span> {analysisResult.detectedFeatures.top_style}</div>
+                    <div><span className="font-medium">Bottom:</span> {analysisResult.detectedFeatures.bottom_style}</div>
+                    <div><span className="font-medium">Fit:</span> {analysisResult.detectedFeatures.fit}</div>
+                    <div><span className="font-medium">Colors:</span> {analysisResult.detectedFeatures.colors.join(', ')}</div>
+                  </div>
+                </div>
+
+                {/* Feature Matches */}
+                <div>
+                  <h4 className="font-semibold mb-3 text-primary">Style Analysis:</h4>
+                  <div className="space-y-3">
+                    {analysisResult.matches.map((match, index) => (
+                      <div key={index} className="flex items-start gap-2 text-sm p-3 rounded-lg bg-muted/50">
+                        <div className="flex-shrink-0 mt-0.5">
+                          {match.match ? (
+                            <CheckCircle className="h-4 w-4 text-emerald-500" />
+                          ) : (
+                            <XCircle className="h-4 w-4 text-red-500" />
+                          )}
+                        </div>
+                        <div className="flex-grow">
+                          <div className="font-medium">{match.category}</div>
+                          <div className="text-muted-foreground text-xs mt-1">{match.reason}</div>
+                        </div>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
 
                 {/* Suggestions */}
