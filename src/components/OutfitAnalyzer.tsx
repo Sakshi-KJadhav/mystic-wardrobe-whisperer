@@ -120,17 +120,24 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
   };
 
   const analyzeOutfit = async () => {
-    if (!selectedImage) return;
+    if (!selectedImage) {
+      toast({
+        title: "No image selected",
+        description: "Please select an image first.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsAnalyzing(true);
     
     try {
       toast({
         title: "Analyzing outfit...",
-        description: "Using AI to detect clothing features",
+        description: "Detecting clothing features from your image",
       });
 
-      // Use real AI analysis
+      // Use image analysis
       const detectedFeatures = await clothingAnalysisService.analyzeClothing(selectedImage);
       
       // Compare with styling recommendations
@@ -143,9 +150,10 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
       });
     } catch (error) {
       console.error('Analysis error:', error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
       toast({
         title: "Analysis failed",
-        description: "Please try again. Make sure the image shows clothing clearly.",
+        description: `Error: ${errorMessage}. Please try again with a clear clothing image.`,
         variant: "destructive",
       });
     } finally {
