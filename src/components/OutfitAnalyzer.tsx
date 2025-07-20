@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Upload, Image as ImageIcon, CheckCircle, XCircle, Loader2, AlertTriangle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { clothingAnalysisService, DetectedFeatures } from '@/services/clothingAnalysis';
 
 interface StyleData {
   bodyShape: string;
@@ -12,17 +13,6 @@ interface StyleData {
 
 interface OutfitAnalyzerProps {
   styleData: StyleData;
-}
-
-interface DetectedFeatures {
-  neckline: string;
-  sleeves: string;
-  top_style: string;
-  bottom_style: string;
-  dress_style: string;
-  rise: string;
-  colors: string[];
-  fit: string;
 }
 
 interface AnalysisResult {
@@ -135,11 +125,13 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
     setIsAnalyzing(true);
     
     try {
-      // Simulate AI image analysis
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // Mock clothing feature detection
-      const detectedFeatures = await detectClothingFeatures(selectedImage);
+      toast({
+        title: "Analyzing outfit...",
+        description: "Using AI to detect clothing features",
+      });
+
+      // Use real AI analysis
+      const detectedFeatures = await clothingAnalysisService.analyzeClothing(selectedImage);
       
       // Compare with styling recommendations
       const analysis = compareWithRecommendations(detectedFeatures, styleData.bodyShape);
@@ -147,12 +139,13 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
       
       toast({
         title: "Analysis complete!",
-        description: "Your outfit features have been analyzed",
+        description: `Detected features with ${detectedFeatures.confidence}% confidence`,
       });
     } catch (error) {
+      console.error('Analysis error:', error);
       toast({
         title: "Analysis failed",
-        description: "Please try again later",
+        description: "Please try again. Make sure the image shows clothing clearly.",
         variant: "destructive",
       });
     } finally {
@@ -160,37 +153,11 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
     }
   };
 
-  // Mock function to simulate clothing feature detection from image
-  const detectClothingFeatures = async (imageFile: File): Promise<DetectedFeatures> => {
-    // In a real implementation, this would use computer vision/AI
-    // For now, we'll simulate random feature detection
-    const possibleFeatures = {
-      necklines: ['v-neck', 'scoop neck', 'boat neck', 'off-shoulder', 'sweetheart', 'square neck', 'cowl neck', 'crew neck'],
-      sleeves: ['sleeveless', 'cap sleeves', 'short sleeves', '3/4 sleeves', 'long sleeves', 'flutter sleeves', 'puffy sleeves', 'fitted sleeves'],
-      tops: ['fitted', 'loose', 'wrap', 'empire waist', 'peplum', 'crop top', 'blouse', 't-shirt'],
-      bottoms: ['high-waisted', 'mid-rise', 'low-rise', 'straight-leg', 'wide-leg', 'skinny', 'bootcut', 'flared'],
-      dresses: ['bodycon', 'a-line', 'fit-and-flare', 'empire waist', 'sheath', 'shift', 'maxi', 'midi'],
-      colors: ['black', 'white', 'navy', 'red', 'blue', 'green', 'pink', 'purple', 'yellow', 'gray'],
-      fits: ['tight', 'fitted', 'loose', 'relaxed', 'oversized']
-    };
-
-    return {
-      neckline: possibleFeatures.necklines[Math.floor(Math.random() * possibleFeatures.necklines.length)],
-      sleeves: possibleFeatures.sleeves[Math.floor(Math.random() * possibleFeatures.sleeves.length)],
-      top_style: possibleFeatures.tops[Math.floor(Math.random() * possibleFeatures.tops.length)],
-      bottom_style: possibleFeatures.bottoms[Math.floor(Math.random() * possibleFeatures.bottoms.length)],
-      dress_style: possibleFeatures.dresses[Math.floor(Math.random() * possibleFeatures.dresses.length)],
-      rise: possibleFeatures.bottoms.filter(b => b.includes('rise'))[Math.floor(Math.random() * 3)],
-      colors: [possibleFeatures.colors[Math.floor(Math.random() * possibleFeatures.colors.length)]],
-      fit: possibleFeatures.fits[Math.floor(Math.random() * possibleFeatures.fits.length)]
-    };
-  };
-
   const compareWithRecommendations = (detected: DetectedFeatures, bodyShape: string): AnalysisResult => {
     const recommendations = getStylingRecommendations(bodyShape);
     const matches = [];
     let totalScore = 0;
-    let matchCount = 0;
+    const maxScore = 100;
 
     // Check neckline match
     const necklineMatch = checkFeatureMatch(detected.neckline, recommendations.necklines);
@@ -200,7 +167,7 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
       match: necklineMatch.match,
       reason: necklineMatch.reason
     });
-    if (necklineMatch.match) { totalScore += 25; matchCount++; }
+    if (necklineMatch.match) totalScore += 25;
 
     // Check sleeves match
     const sleevesMatch = checkFeatureMatch(detected.sleeves, recommendations.sleeves);
@@ -210,7 +177,7 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
       match: sleevesMatch.match,
       reason: sleevesMatch.reason
     });
-    if (sleevesMatch.match) { totalScore += 25; matchCount++; }
+    if (sleevesMatch.match) totalScore += 25;
 
     // Check top style match
     const topMatch = checkFeatureMatch(detected.top_style, recommendations.tops);
@@ -220,7 +187,7 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
       match: topMatch.match,
       reason: topMatch.reason
     });
-    if (topMatch.match) { totalScore += 25; matchCount++; }
+    if (topMatch.match) totalScore += 25;
 
     // Check bottom/rise match
     const bottomMatch = checkFeatureMatch(detected.rise || detected.bottom_style, recommendations['jeans rise']);
@@ -230,8 +197,12 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
       match: bottomMatch.match,
       reason: bottomMatch.reason
     });
-    if (bottomMatch.match) { totalScore += 25; matchCount++; }
+    if (bottomMatch.match) totalScore += 25;
 
+    // Factor in AI confidence score
+    const confidenceBonus = Math.round(detected.confidence * 0.1); // Up to 10 bonus points
+    totalScore = Math.min(totalScore + confidenceBonus, 100);
+    
     // Calculate final score and suitability
     const finalScore = Math.round(totalScore);
     let suitability: 'excellent' | 'good' | 'fair' | 'poor';
@@ -379,7 +350,7 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
                     {isAnalyzing ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Analyzing...
+                        Analyzing with AI...
                       </>
                     ) : (
                       'Analyze Outfit'
@@ -405,8 +376,15 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
                   <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-white font-medium ${getSuitabilityColor(analysisResult.suitability)}`}>
                     {analysisResult.suitability.charAt(0).toUpperCase() + analysisResult.suitability.slice(1)} Match
                   </div>
-                  <div className="text-3xl font-bold mt-2 text-primary">
-                    {analysisResult.score}/100
+                  <div className="space-y-4">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-primary mb-1">
+                        {analysisResult.score}/100
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        AI Confidence: {analysisResult.detectedFeatures.confidence}%
+                      </div>
+                    </div>
                   </div>
                 </div>
 
