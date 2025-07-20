@@ -146,7 +146,7 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
       
       toast({
         title: "Analysis complete!",
-        description: `Detected features with ${detectedFeatures.confidence}% confidence`,
+        description: `Detected ${detectedFeatures.analysis_details?.garment_type || 'clothing'} with ${detectedFeatures.confidence}% confidence`,
       });
     } catch (error) {
       console.error('Analysis error:', error);
@@ -408,6 +408,41 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
                     <div><span className="font-medium">Colors:</span> {analysisResult.detectedFeatures.colors.join(', ')}</div>
                   </div>
                 </div>
+
+                {/* Advanced Analysis Details */}
+                {analysisResult.detectedFeatures.analysis_details && (
+                  <div>
+                    <h4 className="font-semibold mb-3 text-primary">Advanced Analysis:</h4>
+                    <div className="bg-muted/30 p-4 rounded-lg space-y-3">
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Garment Type:</span>
+                          <span className="font-medium capitalize">
+                            {analysisResult.detectedFeatures.analysis_details.garment_type.replace('_', ' ')}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Pattern:</span>
+                          <span className="font-medium capitalize">
+                            {analysisResult.detectedFeatures.analysis_details.pattern_detected}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Fabric Texture:</span>
+                          <span className="font-medium capitalize">
+                            {analysisResult.detectedFeatures.analysis_details.fabric_texture}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Silhouette:</span>
+                          <span className="font-medium capitalize">
+                            {analysisResult.detectedFeatures.analysis_details.silhouette}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Feature Matches */}
                 <div>
