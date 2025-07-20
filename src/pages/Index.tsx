@@ -3,9 +3,10 @@ import Navbar from '@/components/Navbar';
 import MeasurementForm from '@/components/MeasurementForm';
 import StylingSection from '@/components/StylingSection';
 import OutfitSection from '@/components/OutfitSection';
+import OutfitAnalyzer from '@/components/OutfitAnalyzer';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Users, Palette, Shirt, Star, Zap, Target } from 'lucide-react';
+import { Sparkles, Users, Palette, Shirt, Star, Zap, Target, Camera } from 'lucide-react';
 import { calculateBodyShape, BodyShapeResult } from '@/utils/bodyShapeCalculator';
 import heroBackground from '@/assets/hero-bg.jpg';
 
@@ -50,6 +51,8 @@ const Index = () => {
       setCurrentSection('styling');
     } else if (section === 'outfits' && bodyShapeResult) {
       setCurrentSection('outfits');
+    } else if (section === 'analyzer' && bodyShapeResult) {
+      setCurrentSection('analyzer');
     } else {
       setCurrentSection('home');
       setShowForm(false);
@@ -67,6 +70,10 @@ const Index = () => {
 
     if (currentSection === 'outfits' && bodyShapeResult) {
       return <OutfitSection styleData={bodyShapeResult} />;
+    }
+
+    if (currentSection === 'analyzer' && bodyShapeResult) {
+      return <OutfitAnalyzer styleData={bodyShapeResult} />;
     }
 
     if (currentSection === 'results' && bodyShapeResult) {
@@ -110,6 +117,15 @@ const Index = () => {
                 >
                   <Shirt className="h-5 w-5" />
                   Browse Outfits
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="xl"
+                  onClick={() => setCurrentSection('analyzer')}
+                  className="gap-2"
+                >
+                  <Camera className="h-5 w-5" />
+                  Analyze Your Outfit
                 </Button>
               </div>
             </div>

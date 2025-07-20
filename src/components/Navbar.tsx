@@ -49,6 +49,13 @@ const Navbar = ({ onNavigate }: NavbarProps) => {
             >
               Outfits
             </Button>
+            <Button
+              variant="ghost"
+              onClick={() => onNavigate('analyzer')}
+              className="hover:text-primary"
+            >
+              Analyzer
+            </Button>
             <ThemeToggle />
             <Button
               variant="gradient"
