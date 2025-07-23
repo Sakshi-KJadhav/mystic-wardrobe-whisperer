@@ -4,7 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Ruler } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Ruler, HelpCircle } from 'lucide-react';
 
 interface MeasurementData {
   bust: string;
@@ -88,92 +89,153 @@ const MeasurementForm = ({ onSubmit }: MeasurementFormProps) => {
               <CardTitle className="text-center text-primary">Measurement Form</CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="mb-6">
-                  <Label htmlFor="unit">Measurement Unit</Label>
-                  <Select value={unit} onValueChange={(value: 'inches' | 'cm') => setUnit(value)}>
-                    <SelectTrigger className="w-full mt-2">
-                      <SelectValue placeholder="Select unit" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="inches">Inches</SelectItem>
-                      <SelectItem value="cm">Centimeters (cm)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="bust">Bust ({unit})</Label>
-                    <Input
-                      id="bust"
-                      type="number"
-                      placeholder={unit === 'inches' ? 'e.g. 36' : 'e.g. 91'}
-                      value={measurements.bust}
-                      onChange={(e) => handleInputChange('bust', e.target.value)}
-                      className="transition-all focus:shadow-glow"
-                    />
+              <TooltipProvider>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="mb-6">
+                    <Label htmlFor="unit">Measurement Unit</Label>
+                    <Select value={unit} onValueChange={(value: 'inches' | 'cm') => setUnit(value)}>
+                      <SelectTrigger className="w-full mt-2">
+                        <SelectValue placeholder="Select unit" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="inches">Inches</SelectItem>
+                        <SelectItem value="cm">Centimeters (cm)</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="bust">Bust ({unit})</Label>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Measure around the fullest part of your bust/chest</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <Input
+                        id="bust"
+                        type="number"
+                        placeholder={unit === 'inches' ? 'e.g. 36' : 'e.g. 91'}
+                        value={measurements.bust}
+                        onChange={(e) => handleInputChange('bust', e.target.value)}
+                        className="transition-all focus:shadow-glow"
+                      />
+                    </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="waist">Waist ({unit})</Label>
-                    <Input
-                      id="waist"
-                      type="number"
-                      placeholder={unit === 'inches' ? 'e.g. 28' : 'e.g. 71'}
-                      value={measurements.waist}
-                      onChange={(e) => handleInputChange('waist', e.target.value)}
-                      className="transition-all focus:shadow-glow"
-                    />
-                  </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="waist">Waist ({unit})</Label>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Measure around the narrowest part of your waist</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <Input
+                        id="waist"
+                        type="number"
+                        placeholder={unit === 'inches' ? 'e.g. 28' : 'e.g. 71'}
+                        value={measurements.waist}
+                        onChange={(e) => handleInputChange('waist', e.target.value)}
+                        className="transition-all focus:shadow-glow"
+                      />
+                    </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="hips">Hips ({unit})</Label>
-                    <Input
-                      id="hips"
-                      type="number"
-                      placeholder={unit === 'inches' ? 'e.g. 38' : 'e.g. 96'}
-                      value={measurements.hips}
-                      onChange={(e) => handleInputChange('hips', e.target.value)}
-                      className="transition-all focus:shadow-glow"
-                    />
-                  </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="hips">Hips ({unit})</Label>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Measure around the fullest part of your hips</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <Input
+                        id="hips"
+                        type="number"
+                        placeholder={unit === 'inches' ? 'e.g. 38' : 'e.g. 96'}
+                        value={measurements.hips}
+                        onChange={(e) => handleInputChange('hips', e.target.value)}
+                        className="transition-all focus:shadow-glow"
+                      />
+                    </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="shoulders">Shoulders ({unit})</Label>
-                    <Input
-                      id="shoulders"
-                      type="number"
-                      placeholder={unit === 'inches' ? 'e.g. 16' : 'e.g. 41'}
-                      value={measurements.shoulders}
-                      onChange={(e) => handleInputChange('shoulders', e.target.value)}
-                      className="transition-all focus:shadow-glow"
-                    />
-                  </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="shoulders">Shoulders ({unit})</Label>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Measure across your back from shoulder to shoulder</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <Input
+                        id="shoulders"
+                        type="number"
+                        placeholder={unit === 'inches' ? 'e.g. 16' : 'e.g. 41'}
+                        value={measurements.shoulders}
+                        onChange={(e) => handleInputChange('shoulders', e.target.value)}
+                        className="transition-all focus:shadow-glow"
+                      />
+                    </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="torsoLength">Torso Length ({unit})</Label>
-                    <Input
-                      id="torsoLength"
-                      type="number"
-                      placeholder={unit === 'inches' ? 'e.g. 24' : 'e.g. 61'}
-                      value={measurements.torsoLength}
-                      onChange={(e) => handleInputChange('torsoLength', e.target.value)}
-                      className="transition-all focus:shadow-glow"
-                    />
-                  </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="torsoLength">Torso Length ({unit})</Label>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Measure from shoulder to natural waist</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <Input
+                        id="torsoLength"
+                        type="number"
+                        placeholder={unit === 'inches' ? 'e.g. 24' : 'e.g. 61'}
+                        value={measurements.torsoLength}
+                        onChange={(e) => handleInputChange('torsoLength', e.target.value)}
+                        className="transition-all focus:shadow-glow"
+                      />
+                    </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="legLength">Leg Length ({unit})</Label>
-                    <Input
-                      id="legLength"
-                      type="number"
-                      placeholder={unit === 'inches' ? 'e.g. 32' : 'e.g. 81'}
-                      value={measurements.legLength}
-                      onChange={(e) => handleInputChange('legLength', e.target.value)}
-                      className="transition-all focus:shadow-glow"
-                    />
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="legLength">Leg Length ({unit})</Label>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Measure from waist to ankle (inseam)</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <Input
+                        id="legLength"
+                        type="number"
+                        placeholder={unit === 'inches' ? 'e.g. 32' : 'e.g. 81'}
+                        value={measurements.legLength}
+                        onChange={(e) => handleInputChange('legLength', e.target.value)}
+                        className="transition-all focus:shadow-glow"
+                      />
+                    </div>
                   </div>
-                </div>
                 
                 <Button
                   type="submit"
@@ -183,7 +245,8 @@ const MeasurementForm = ({ onSubmit }: MeasurementFormProps) => {
                 >
                   Calculate My Body Shape
                 </Button>
-              </form>
+                </form>
+              </TooltipProvider>
             </CardContent>
           </Card>
         </div>
