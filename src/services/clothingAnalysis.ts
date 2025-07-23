@@ -262,16 +262,14 @@ class ClothingAnalysisService {
     }
     
     const confidence = Math.round((score / maxScore) * 100);
-    const isClothing = confidence >= 75; // Higher threshold for accuracy
+    const isClothing = confidence >= 45; // More permissive threshold for clothing detection
     
     let suggestion = '';
     if (!isClothing) {
-      if (confidence < 40) {
+      if (confidence < 25) {
         suggestion = 'This image doesn\'t contain clothing. Please upload a photo of garments, outfits, or someone wearing clothes.';
-      } else if (confidence < 60) {
-        suggestion = 'Image may contain clothing but is unclear. Try uploading a clearer, well-lit photo focused on the clothing items.';
       } else {
-        suggestion = 'Clothing detection is uncertain. Ensure the image clearly shows clothing items or outfits without too much background.';
+        suggestion = 'Image may contain clothing but is unclear. Try uploading a clearer, well-lit photo focused on the clothing items.';
       }
     }
     
