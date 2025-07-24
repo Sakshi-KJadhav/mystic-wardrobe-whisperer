@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -434,20 +433,39 @@ const StylingSection = ({ styleData }: { styleData: StyleData }) => {
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="container mx-auto px-4 max-w-6xl">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
-            Your Personal Styling Guide
-          </h1>
-          <p className="text-xl text-muted-foreground mb-6">
-            Expert styling tips tailored specifically for your body shape
-          </p>
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <Badge variant="secondary" className="text-lg px-4 py-2">
-              {styleData.bodyShape}
-            </Badge>
-            <Badge variant="outline" className="text-lg px-4 py-2">
-              {styleData.proportionType}
-            </Badge>
+        {/* Hero Section with Image */}
+        <div className="relative mb-16">
+          <div className="relative h-80 rounded-2xl overflow-hidden mb-8">
+            <img 
+              src="https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+              alt="Fashion and styling inspiration"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center text-white">
+                <h1 className="text-5xl font-bold mb-4">
+                  Your Personal Styling Guide
+                </h1>
+                <p className="text-xl mb-6 max-w-2xl mx-auto">
+                  Discover expert styling tips tailored specifically for your body shape and let your fashion reflect your unique soul
+                </p>
+                <div className="flex items-center justify-center gap-4">
+                  <Badge variant="secondary" className="text-lg px-6 py-3 bg-white/90 text-black">
+                    {styleData.bodyShape}
+                  </Badge>
+                  <Badge variant="outline" className="text-lg px-6 py-3 border-white text-white">
+                    {styleData.proportionType}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Fashion is more than clothing—it's a language that speaks to your soul. These personalized styling tips will help you create looks that not only flatter your body but also express your authentic self.
+            </p>
           </div>
         </div>
 
