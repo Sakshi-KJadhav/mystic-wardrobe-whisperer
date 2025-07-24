@@ -1,3 +1,4 @@
+
 import { Mail, Sparkles, Heart } from 'lucide-react';
 
 const Footer = () => {
@@ -17,15 +18,34 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Features Section */}
+          {/* What Mystic Does For You Section */}
           <div className="text-center">
-            <h3 className="text-xl font-semibold mb-4 text-accent">What We Offer</h3>
-            <ul className="space-y-2 text-primary-foreground/80">
-              <li>• Body shape analysis using precise measurements</li>
-              <li>• Personalized styling recommendations</li>
-              <li>• Outfit suggestions across multiple fashion categories</li>
-              <li>• Expert tips for necklines, colors, and proportions</li>
-              <li>• Indo-Western fusion styling guidance</li>
+            <h3 className="text-xl font-semibold mb-4 text-accent">What Mystic Does For You</h3>
+            <ul className="space-y-3 text-primary-foreground/80">
+              <li className="flex items-start gap-2">
+                <span className="text-accent mt-1">✨</span>
+                <span>Instantly identifies your unique body shape with precision</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-accent mt-1">👗</span>
+                <span>Curates personalized outfit recommendations for any occasion</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-accent mt-1">🎨</span>
+                <span>Provides expert styling tips for colors, patterns, and silhouettes</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-accent mt-1">📏</span>
+                <span>Offers guidance on proportions and flattering necklines</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-accent mt-1">🌟</span>
+                <span>Helps you discover your authentic style across cultures</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-accent mt-1">💫</span>
+                <span>Analyzes your existing outfits for styling improvements</span>
+              </li>
             </ul>
           </div>
 
