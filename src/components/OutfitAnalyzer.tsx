@@ -7,6 +7,8 @@ import { Upload, Image as ImageIcon, CheckCircle, XCircle, Loader2, AlertTriangl
 import { toast } from '@/hooks/use-toast';
 import { clothingAnalysisService, DetectedFeatures } from '@/services/clothingAnalysis';
 
+type OutfitCategory = 'western' | 'indian' | 'fusion' | 'comfort';
+
 interface StyleData {
   bodyShape: string;
   proportionType: string;
@@ -30,7 +32,60 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<OutfitCategory>('western');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Category-specific styling recommendations
+  const getCategoryRecommendations = (category: OutfitCategory) => {
+    switch (category) {
+      case 'indian':
+        return {
+          garmentTypes: ['saree', 'lehenga', 'kurti', 'salwar', 'anarkali', 'sharara'],
+          necklines: ['boat neck', 'v-neck', 'square neck', 'sweetheart', 'high neck'],
+          fabrics: ['silk', 'cotton', 'chiffon', 'georgette', 'crepe'],
+          styling: {
+            draping: 'Focus on draping techniques that complement your body shape',
+            accessories: 'Use traditional jewelry to enhance the outfit',
+            colors: 'Experiment with rich colors and traditional prints'
+          }
+        };
+      case 'western':
+        return {
+          garmentTypes: ['dress', 'blouse', 'top', 'shirt', 'pants', 'skirt', 'blazer'],
+          necklines: ['v-neck', 'scoop neck', 'crew neck', 'off-shoulder', 'halter'],
+          fabrics: ['cotton', 'denim', 'polyester', 'wool', 'linen'],
+          styling: {
+            layering: 'Use layers to create depth and interest',
+            fit: 'Focus on tailored fits that enhance your silhouette',
+            colors: 'Mix neutrals with statement pieces'
+          }
+        };
+      case 'fusion':
+        return {
+          garmentTypes: ['indo-western', 'crop top with skirt', 'palazzo with top', 'dhoti pants'],
+          necklines: ['mixed styles', 'contemporary cuts', 'fusion necklines'],
+          fabrics: ['mixed textures', 'contemporary fabrics', 'traditional with modern twist'],
+          styling: {
+            balance: 'Balance traditional and modern elements',
+            proportion: 'Mix silhouettes for contemporary look',
+            colors: 'Blend traditional and modern color palettes'
+          }
+        };
+      case 'comfort':
+        return {
+          garmentTypes: ['casual wear', 'loungewear', 'activewear', 'relaxed fit'],
+          necklines: ['comfortable cuts', 'relaxed necklines'],
+          fabrics: ['cotton', 'jersey', 'modal', 'bamboo', 'breathable fabrics'],
+          styling: {
+            comfort: 'Prioritize comfort without compromising style',
+            fit: 'Choose relaxed but flattering fits',
+            versatility: 'Select pieces that work for multiple occasions'
+          }
+        };
+      default:
+        return getCategoryRecommendations('western');
+    }
+  };
 
   // Professional stylist recommendations by body shape
   const getStylistRecommendations = (bodyShape: string) => {
@@ -175,7 +230,7 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
       });
 
       const detectedFeatures = await clothingAnalysisService.analyzeClothing(selectedImage);
-      const analysis = provideStylistAnalysis(detectedFeatures, styleData.bodyShape);
+      const analysis = provideStylistAnalysis(detectedFeatures, styleData.bodyShape, selectedCategory);
       setAnalysisResult(analysis);
       
       toast({
@@ -195,8 +250,9 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
     }
   };
 
-  const provideStylistAnalysis = (detected: DetectedFeatures, bodyShape: string): AnalysisResult => {
+  const provideStylistAnalysis = (detected: DetectedFeatures, bodyShape: string, category: OutfitCategory): AnalysisResult => {
     const recommendations = getStylistRecommendations(bodyShape);
+    const categoryRecs = getCategoryRecommendations(category);
     const matches = [];
     let totalScore = 0;
 
@@ -244,6 +300,17 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
     });
     totalScore += colorAnalysis.score * 0.15;
 
+    // Category Analysis (15% weight)
+    const categoryAnalysis = analyzeCategorySpecific(detected, categoryRecs, category);
+    matches.push({
+      category: `${category.charAt(0).toUpperCase() + category.slice(1)} Style`,
+      recommendation: categoryAnalysis.recommendation,
+      match: categoryAnalysis.isIdeal,
+      reason: categoryAnalysis.reason,
+      impact: 'high' as const
+    });
+    totalScore += categoryAnalysis.score * 0.15;
+
     // Proportion Analysis (10% weight)
     const proportionAnalysis = analyzeProportions(detected, bodyShape);
     matches.push({
@@ -268,8 +335,8 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
       score: finalScore,
       detectedFeatures: detected,
       matches,
-      suggestions: generateStylistSuggestions(matches, bodyShape, detected),
-      stylistNotes: generateStylistNotes(matches, bodyShape, detected)
+      suggestions: generateStylistSuggestions(matches, bodyShape, detected, category),
+      stylistNotes: generateStylistNotes(matches, bodyShape, detected, category)
     };
   };
 
@@ -416,7 +483,90 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
     };
   };
 
-  const generateStylistSuggestions = (matches: any[], bodyShape: string, detected: DetectedFeatures): string[] => {
+  const analyzeCategorySpecific = (detected: DetectedFeatures, categoryRecs: any, category: OutfitCategory) => {
+    let score = 50;
+    let reason = '';
+    let recommendation = '';
+
+    // Check if the detected garment type matches category expectations
+    const detectedType = detected.analysis_details?.garment_type || '';
+    const expectedTypes = categoryRecs.garmentTypes;
+    
+    const topStyle = detected.top_style.toLowerCase();
+    const bottomStyle = detected.bottom_style.toLowerCase();
+    const dressStyle = detected.dress_style.toLowerCase();
+
+    let categoryMatch = false;
+
+    switch (category) {
+      case 'indian':
+        categoryMatch = expectedTypes.some((type: string) => 
+          topStyle.includes(type) || bottomStyle.includes(type) || dressStyle.includes(type) ||
+          detected.neckline.toLowerCase().includes('traditional') ||
+          detected.colors.some(color => ['red', 'gold', 'maroon', 'green'].includes(color.toLowerCase()))
+        );
+        if (categoryMatch) {
+          score = 85;
+          reason = `✓ This appears to be traditional Indian wear that complements your style`;
+        } else {
+          score = 40;
+          reason = `~ This might be western wear. For Indian category, consider traditional garments like ${expectedTypes.slice(0, 3).join(', ')}`;
+        }
+        recommendation = `For Indian wear: Try ${expectedTypes.slice(0, 3).join(', ')} in rich fabrics like ${categoryRecs.fabrics.slice(0, 3).join(', ')}`;
+        break;
+
+      case 'western':
+        categoryMatch = expectedTypes.some((type: string) => 
+          topStyle.includes(type) || bottomStyle.includes(type) || dressStyle.includes(type)
+        ) || detectedType === 'top' || detectedType === 'full_outfit';
+        if (categoryMatch) {
+          score = 80;
+          reason = `✓ This western outfit style works well for your body shape`;
+        } else {
+          score = 45;
+          reason = `~ Consider classic western pieces for better versatility`;
+        }
+        recommendation = `For western wear: Focus on ${expectedTypes.slice(0, 4).join(', ')} in structured fits`;
+        break;
+
+      case 'fusion':
+        // Fusion is more flexible - look for mix of elements
+        const hasMixedElements = detected.colors.length > 1 || 
+          detected.neckline.includes('contemporary') ||
+          topStyle.includes('crop') || bottomStyle.includes('palazzo');
+        if (hasMixedElements) {
+          score = 75;
+          reason = `✓ This fusion style blends traditional and modern elements beautifully`;
+        } else {
+          score = 50;
+          reason = `~ For fusion wear, try mixing traditional silhouettes with modern cuts`;
+        }
+        recommendation = `For Indo-fusion: ${categoryRecs.styling.balance}`;
+        break;
+
+      case 'comfort':
+        const isComfortable = detected.fit.includes('relaxed') || detected.fit.includes('loose') ||
+          topStyle.includes('casual') || bottomStyle.includes('casual');
+        if (isComfortable) {
+          score = 85;
+          reason = `✓ This comfortable outfit maintains style while prioritizing ease`;
+        } else {
+          score = 45;
+          reason = `~ For comfort wear, choose more relaxed fits in breathable fabrics`;
+        }
+        recommendation = `For comfort wear: ${categoryRecs.styling.comfort}`;
+        break;
+    }
+
+    return {
+      isIdeal: categoryMatch,
+      score,
+      reason,
+      recommendation
+    };
+  };
+
+  const generateStylistSuggestions = (matches: any[], bodyShape: string, detected: DetectedFeatures, category: OutfitCategory): string[] => {
     const suggestions = [];
     
     // Generate specific suggestions based on what didn't match
@@ -449,7 +599,7 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
     return suggestions.length > 0 ? suggestions : ["This outfit works well for your body shape!"];
   };
 
-  const generateStylistNotes = (matches: any[], bodyShape: string, detected: DetectedFeatures): string[] => {
+  const generateStylistNotes = (matches: any[], bodyShape: string, detected: DetectedFeatures, category: OutfitCategory): string[] => {
     const notes = [];
     
     // Professional styling notes
@@ -514,6 +664,23 @@ const OutfitAnalyzer = ({ styleData }: OutfitAnalyzerProps) => {
             <Badge variant="outline" className="text-lg px-4 py-2">
               {styleData.proportionType}
             </Badge>
+          </div>
+
+          {/* Outfit Category Selection */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold mb-4 text-center">Select Outfit Category</h3>
+            <div className="flex justify-center gap-2 flex-wrap">
+              {(['western', 'indian', 'fusion', 'comfort'] as OutfitCategory[]).map((category) => (
+                <Button
+                  key={category}
+                  variant={selectedCategory === category ? "default" : "outline"}
+                  onClick={() => setSelectedCategory(category)}
+                  className="capitalize"
+                >
+                  {category === 'fusion' ? 'Indo-Fusion' : category}
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
 
