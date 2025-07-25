@@ -1,4 +1,4 @@
-Mystic Wardrobe Whisperer
+ Mystic Wardrobe Whisperer
 
 
 Visit the website: https://mystic-wardrobe-whisperer.lovable.app/ 
@@ -26,21 +26,16 @@ Builder: Lovable (No-code/Low-code AI Website Builder)
 Backend Logic: Custom JavaScript logic for measurements, ratios, and suggestions
 🚀 Getting Started (Run Locally)
 
-# Clone the repo
-git clone https://github.com/yourusername/mystic-wardrobe.git
-cd mystic-wardrobe
 
-# Install dependencies
-npm install
-
-# Run locally
-npm start
 🧩 Challenges Faced
 
 "What the user actually wants" — that was the real puzzle.
 Initially, the site only suggested outfits. But users (like me) wanted why and how certain styles worked.
 As a beginner, I wasn’t familiar with AI tools like Lovable or Cursor. I rebuilt everything after learning about them.
 The outfit analyzer didn’t work well at first — even analyzing non-outfit images! After several iterations, it now works more reliably.
+
+
+
 ✅ Accomplishments
 
 Styling tips are logic-backed, not dry advice. They actually teach users fashion reasoning.
