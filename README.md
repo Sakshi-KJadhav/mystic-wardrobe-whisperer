@@ -1,4 +1,4 @@
-Mystic Wardrobe Whisperer
+#Mystic Wardrobe Whisperer
 
 AI-powered personal stylist for every body type
 "The dress must follow the body of a woman, not the body following the shape of the dress"
@@ -9,7 +9,7 @@ Vidoes:
 [![Watch Demo Video](https://img.youtube.com/vi/NVKn4JoJmTU/0.jpg)](https://youtu.be/NVKn4JoJmTU)
 
 
-✨ Features
+##✨ Features
 
 🔎 Smart Body Shape Detection
 Based on your measurements, the app accurately detects your body shape (pear, apple, hourglass, etc.)
@@ -31,7 +31,7 @@ Backend Logic: Custom JavaScript logic for measurements, ratios, and suggestions
 🚀 Getting Started (Run Locally)
 
 
-🧩 Challenges Faced
+##🧩 Challenges Faced
 
 "What the user actually wants" — that was the real puzzle.
 Initially, the site only suggested outfits. But users (like me) wanted why and how certain styles worked.
@@ -41,7 +41,9 @@ The outfit analyzer didn’t work well at first — even analyzing non-outfit im
 
 Styling tips are logic-backed, not dry advice. They actually teach users fashion reasoning.
 The outfit analyzer now accurately detects suitability for body types — a game-changer for confidence and clarity.
-📚 What I Learned
+
+
+##📚 What I Learned
 
 “Building a tool for others means thinking like a user, not a coder.”
 AI tools can accelerate development, but vision and user empathy matter the most.
