@@ -1,7 +1,7 @@
 Mystic Wardrobe Whisperer
 
 AI-powered personal stylist for every body type
-“You should choose the outfit — not let the outfit choose you.”
+"The dress must follow the body of a woman, not the body following the shape of the dress"
 
 🔗 https://mystic-wardrobe-whisperer.lovable.app/
 
