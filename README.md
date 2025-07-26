@@ -30,15 +30,7 @@ Builder: Lovable (No-code/Low-code AI Website Builder)
 Backend Logic: Custom JavaScript logic for measurements, ratios, and suggestions
 🚀 Getting Started (Run Locally)
 
-# Clone the repo
-git clone https://github.com/yourusername/mystic-wardrobe.git
-cd mystic-wardrobe
 
-# Install dependencies
-npm install
-
-# Run locally
-npm start
 🧩 Challenges Faced
 
 "What the user actually wants" — that was the real puzzle.
