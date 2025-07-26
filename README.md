@@ -6,7 +6,7 @@ AI-powered personal stylist for every body type
 🔗 https://mystic-wardrobe-whisperer.lovable.app/
 
 Vidoes:
-[![Watch Demo Video](https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg)](https://youtu.be/NVKn4JoJmTU)
+[![Watch Demo Video](https://img.youtube.com/vi/https://youtu.be/NVKn4JoJmTU/0.jpg)](https://youtu.be/NVKn4JoJmTU)
 
 
 ✨ Features
